@@ -10,10 +10,20 @@ Free-event-app/
 ├── design/
 │   ├── assets/      # Logos, icons, images, brand files
 │   └── mockups/     # Wireframes and UI mockups
-├── public/          # Static files served as-is
-└── src/             # Application source code
+├── public/          # Static files served as-is (images, icons)
+└── src/app/         # Next.js pages and layouts (App Router)
 ```
 
 ## Getting started
 
-_Setup instructions will go here once the tech stack is chosen._
+Built with [Next.js](https://nextjs.org) (TypeScript + Tailwind CSS) and hosted on Vercel.
+
+```bash
+npm install      # first time only
+npm run dev      # start local dev server at http://localhost:3000
+npm run build    # production build check
+```
+
+## Deployment
+
+Pushing to `main` deploys automatically to Vercel. Other branches get preview URLs.
