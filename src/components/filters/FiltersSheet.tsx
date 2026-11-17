@@ -1,0 +1,108 @@
+"use client";
+
+import { useRef } from "react";
+import { SORT_LABELS } from "@/lib/filters";
+import { AREAS } from "@/lib/site";
+import { SORT_OPTIONS, type EventFilters } from "@/lib/types";
+import { SlidersIcon, XIcon } from "@/components/ui/icons";
+import { Chip } from "./Chip";
+
+interface FiltersSheetProps {
+  filters: EventFilters;
+  onChange: (patch: Partial<EventFilters>) => void;
+  onReset: () => void;
+  activeCount: number;
+  resultCount: number;
+}
+
+/**
+ * "Filters" button that opens a bottom sheet on mobile (centered dialog on desktop)
+ * with the less-used filters: area and sort order.
+ * Built on <dialog>, which handles focus trapping and the Esc key for us.
+ */
+export function FiltersSheet({ filters, onChange, onReset, activeCount, resultCount }: FiltersSheetProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const close = () => dialogRef.current?.close();
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => dialogRef.current?.showModal()}
+        aria-label={`Filters${activeCount ? `, ${activeCount} active` : ""}`}
+        className="relative grid size-12 shrink-0 place-items-center rounded-full bg-surface-2 transition hover:bg-border active:scale-95"
+      >
+        <SlidersIcon className="size-5" />
+        {activeCount > 0 && (
+          <span className="bg-brand absolute -top-0.5 -right-0.5 grid size-5 place-items-center rounded-full text-[11px] font-bold text-accent-fg">
+            {activeCount}
+          </span>
+        )}
+      </button>
+
+      <dialog
+        ref={dialogRef}
+        // Clicking the dark backdrop closes the sheet.
+        onClick={(e) => e.target === e.currentTarget && close()}
+        className="m-0 mt-auto w-full max-w-none rounded-t-3xl bg-surface p-0 text-fg sm:m-auto sm:max-w-md sm:rounded-3xl"
+      >
+        <div className="p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+          <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border sm:hidden" aria-hidden="true" />
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-lg font-bold">Filters</h2>
+            <button
+              type="button"
+              onClick={close}
+              aria-label="Close filters"
+              className="grid size-9 place-items-center rounded-full hover:bg-surface-2"
+            >
+              <XIcon className="size-5" />
+            </button>
+          </div>
+
+          <fieldset>
+            <legend className="mb-2 text-sm font-semibold">Area</legend>
+            <div className="flex flex-wrap gap-2">
+              <Chip active={filters.area === null} onClick={() => onChange({ area: null })}>
+                Everywhere
+              </Chip>
+              {AREAS.map((area) => (
+                <Chip key={area} active={filters.area === area} onClick={() => onChange({ area })}>
+                  {area}
+                </Chip>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="mt-6">
+            <legend className="mb-2 text-sm font-semibold">Sort by</legend>
+            <div className="flex flex-wrap gap-2">
+              {SORT_OPTIONS.map((sort) => (
+                <Chip key={sort} active={filters.sort === sort} onClick={() => onChange({ sort })}>
+                  {SORT_LABELS[sort]}
+                </Chip>
+              ))}
+            </div>
+          </fieldset>
+
+          <div className="mt-8 flex gap-3">
+            <button
+              type="button"
+              onClick={onReset}
+              className="flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold hover:bg-border"
+            >
+              Reset all
+            </button>
+            <button
+              type="button"
+              onClick={close}
+              className="bg-brand flex-[2] rounded-full py-3 text-sm font-semibold text-accent-fg"
+            >
+              Show {resultCount} {resultCount === 1 ? "event" : "events"}
+            </button>
+          </div>
+        </div>
+      </dialog>
+    </>
+  );
+}
