@@ -1,0 +1,81 @@
+rules_version = '2';
+
+// Valley Vibe security rules (PROJECT_REQUIREMENTS.md §8, NFR-6).
+//
+// - The public (no sign-in) may read ONLY public, free, published/cancelled events.
+//   Hidden events, including paid events, are never readable by consumers.
+// - Nobody can create or delete events from a client. The nightly pull uses the
+//   Admin SDK, which bypasses these rules.
+// - Curators (operators with the `curator` custom claim, granted by
+//   functions/src/scripts/set-curator.ts) can read everything and edit events,
+//   but can never make a paid event public.
+//
+// Keep the public rule in sync with isPubliclyReadable() in shared/event-model.ts.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isCurator() {
+      return request.auth != null && request.auth.token.curator == true;
+    }
+
+    function isPublicEvent(data) {
+      return data.visibility == 'public'
+        && data.is_free == true
+        && data.status in ['published', 'cancelled'];
+    }
+
+    // Fields a curator may change (§7.6: publish, reject, merge, edit key fields,
+    // correct free/paid and visibility, add a note). Pipeline bookkeeping is off-limits.
+    function curatorEditableFields() {
+      return [
+        'title', 'description', 'start_at', 'end_at', 'all_day', 'recurrence_note',
+        'venue_name', 'address', 'city', 'postal_code', 'latitude', 'longitude',
+        'geocode_status', 'area', 'primary_category', 'tags', 'is_free', 'visibility',
+        'price_note', 'audience_note', 'status', 'cancelled', 'organizer_name',
+        'additional_sources', 'needs_review', 'review_reasons', 'curator_note',
+        'curated_by', 'curated_at', 'merged_into', 'updated_at'
+      ];
+    }
+
+    function isValidCuratorUpdate() {
+      let after = request.resource.data;
+      return after.diff(resource.data).affectedKeys().hasOnly(curatorEditableFields())
+        // Never publicly show a paid event (§7.6).
+        && !(after.visibility == 'public' && after.is_free != true)
+        && after.status in ['pending_review', 'published', 'rejected', 'cancelled', 'expired']
+        && after.visibility in ['public', 'hidden']
+        && after.curated_by == request.auth.uid;
+    }
+
+    match /events/{eventId} {
+      allow get, list: if isPublicEvent(resource.data) || isCurator();
+      allow update: if isCurator() && isValidCuratorUpdate();
+      allow create, delete: if false;
+    }
+
+    // Source registry: curators can switch a source off quickly (FR-17).
+    match /sources/{sourceId} {
+      allow read: if isCurator();
+      allow update: if isCurator()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['enabled', 'review_policy', 'notes', 'updated_at']);
+      allow create, delete: if false;
+    }
+
+    // Pull-run logs and raw snapshots: written by the pipeline only.
+    match /pull_runs/{runId} {
+      allow read: if isCurator();
+      allow write: if false;
+    }
+    match /raw_snapshots/{snapshotId} {
+      allow read: if isCurator();
+      allow write: if false;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { categoryGradient, getCategory } from "@/lib/categories";
+import { getPublicEventById } from "@/lib/data/events";
 import { formatShortDate, formatTime, getStart } from "@/lib/dates";
-import { getSampleEventById } from "@/lib/events";
 import { renderOgImage, OG_SIZE } from "@/lib/og";
 import { SITE } from "@/lib/site";
 
@@ -11,23 +11,23 @@ export const contentType = "image/png";
 /** Preview image when an event link is shared: title, date, place on the category gradient. */
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const event = getSampleEventById(id);
+  const event = await getPublicEventById(id);
 
-  // Events posted in the browser aren't on the server yet — show a generic card.
   if (!event) {
     return renderOgImage({
       eyebrow: SITE.name,
-      title: "A free event near you",
-      subtitle: "Tap to see the details",
+      title: "Free things to do in the Valley",
+      subtitle: "Tap to see what's on",
       background: "linear-gradient(135deg, #ff2d6f, #ff8a00)",
     });
   }
 
   const start = getStart(event);
   return renderOgImage({
+    badge: event.cancelled ? "CANCELLED" : "FREE",
     eyebrow: getCategory(event.category).label,
     title: event.title,
-    subtitle: `${formatShortDate(start)} · ${formatTime(start)} · ${event.venue}, ${event.area}`,
+    subtitle: `${formatShortDate(start)} · ${formatTime(start)} · ${event.venue || event.city}, ${event.city}`,
     background: categoryGradient(event.category),
   });
 }

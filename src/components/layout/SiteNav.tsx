@@ -4,20 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
 import { SITE } from "@/lib/site";
-import { BookmarkIcon, CompassIcon, PlusIcon, ZapIcon } from "@/components/ui/icons";
+import { BookmarkIcon, CompassIcon, MapIcon, ZapIcon } from "@/components/ui/icons";
 
 interface NavItem {
   href: string;
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
-  /** The "Post" button gets the highlighted center style on mobile. */
-  primary?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Discover", icon: CompassIcon },
+  { href: "/map", label: "Map", icon: MapIcon },
   { href: "/explore", label: "Explore", icon: ZapIcon },
-  { href: "/publish", label: "Post", icon: PlusIcon, primary: true },
   { href: "/saved", label: "Saved", icon: BookmarkIcon },
 ];
 
@@ -28,7 +26,8 @@ function isActive(pathname: string, href: string): boolean {
 /**
  * App navigation:
  * - Mobile: slim top bar + Instagram-style bottom tab bar (thumb-friendly).
- * - Desktop: one top bar with links and a "Post an event" button.
+ * - Desktop: one top bar with links.
+ * There is no "post an event" button: user-submitted events are out of scope for the MVP.
  */
 export function SiteNav() {
   const pathname = usePathname();
@@ -39,13 +38,13 @@ export function SiteNav() {
         <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
             <span className="bg-brand grid size-8 place-items-center rounded-xl text-sm text-accent-fg">
-              F
+              V
             </span>
             <span className="text-lg">{SITE.name}</span>
           </Link>
 
           <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
-            {NAV_ITEMS.filter((item) => !item.primary).map((item) => (
+            {NAV_ITEMS.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -55,13 +54,6 @@ export function SiteNav() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/publish"
-              className="bg-brand ml-2 flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:opacity-90"
-            >
-              <PlusIcon className="size-4" />
-              Post an event
-            </Link>
           </nav>
         </div>
       </header>
@@ -72,7 +64,7 @@ export function SiteNav() {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
       >
         <ul className="mx-auto grid h-[var(--nav-h)] max-w-md grid-cols-4">
-          {NAV_ITEMS.map(({ href, label, icon: Icon, primary }) => {
+          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (
               <li key={href} className="flex">
@@ -83,13 +75,7 @@ export function SiteNav() {
                     active ? "text-fg" : "text-muted"
                   }`}
                 >
-                  {primary ? (
-                    <span className="bg-brand grid h-8 w-12 place-items-center rounded-xl text-accent-fg shadow-md">
-                      <Icon className="size-5" strokeWidth={2.5} />
-                    </span>
-                  ) : (
-                    <Icon className="size-6" strokeWidth={active ? 2.5 : 2} />
-                  )}
+                  <Icon className="size-6" strokeWidth={active ? 2.5 : 2} />
                   {label}
                 </Link>
               </li>

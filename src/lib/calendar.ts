@@ -2,6 +2,8 @@
  * "Add to calendar" helpers: Google Calendar link + .ics file (Apple / Outlook).
  */
 import { getEnd, getStart } from "./dates";
+import { fullLocation } from "./events";
+import { SITE } from "./site";
 import type { FreeEvent } from "./types";
 
 /** 2026-11-22T01:00:00.000Z -> 20261122T010000Z */
@@ -24,7 +26,7 @@ export function googleCalendarUrl(event: FreeEvent, pageUrl: string): string {
     text: event.title,
     dates: `${toCalendarStamp(getStart(event))}/${toCalendarStamp(getEnd(event))}`,
     details: `${event.description}\n\nFree event · ${pageUrl}`,
-    location: `${event.venue}, ${event.address}`,
+    location: fullLocation(event),
   });
   return `https://calendar.google.com/calendar/render?${params}`;
 }
@@ -33,15 +35,15 @@ export function buildIcsFile(event: FreeEvent, pageUrl: string): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Free Event App//EN",
+    `PRODID:-//${SITE.name}//EN`,
     "BEGIN:VEVENT",
-    `UID:${event.id}@free-event-app`,
+    `UID:${event.id}@valley-vibe`,
     `DTSTAMP:${toCalendarStamp(new Date())}`,
     `DTSTART:${toCalendarStamp(getStart(event))}`,
     `DTEND:${toCalendarStamp(getEnd(event))}`,
     `SUMMARY:${escapeIcs(event.title)}`,
     `DESCRIPTION:${escapeIcs(`${event.description}\n\n${pageUrl}`)}`,
-    `LOCATION:${escapeIcs(`${event.venue}, ${event.address}`)}`,
+    `LOCATION:${escapeIcs(fullLocation(event))}`,
     `URL:${pageUrl}`,
     "END:VEVENT",
     "END:VCALENDAR",

@@ -1,12 +1,12 @@
 /**
- * Event queries: search, filter, sort, lookup.
- * These are pure functions (no React, no browser APIs) so they're easy to test
- * and can later be swapped for database queries without touching the UI.
+ * Event queries: search, filter, sort, related.
+ * Pure functions (no React, no browser APIs) so they're easy to test.
+ * Loading events lives in lib/data/events.ts.
  */
-import { SAMPLE_EVENTS } from "@/data/sample-events";
-import { getCategory } from "./categories";
+import { getCategory, tagLabel } from "./categories";
 import { getStart, hasEnded, matchesWhen } from "./dates";
-import type { EventFilters, FreeEvent } from "./types";
+import { eventDistance } from "./geo";
+import type { EventFilters, FreeEvent, LatLng } from "./types";
 
 /** Lowercased text we search against for one event. */
 function searchableText(event: FreeEvent): string {
@@ -14,16 +14,16 @@ function searchableText(event: FreeEvent): string {
     event.title,
     event.description,
     event.venue,
-    event.area,
-    event.organizer,
+    event.city,
+    event.organizer ?? "",
     getCategory(event.category).label,
-    ...event.tags,
+    ...event.tags.map(tagLabel),
   ]
     .join(" ")
     .toLowerCase();
 }
 
-/** Every word in the query must appear somewhere ("jazz tempe" matches a jazz event in Tempe). */
+/** Every word in the query must appear somewhere ("market tempe" matches a market in Tempe). */
 function matchesQuery(event: FreeEvent, query: string): boolean {
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return true;
@@ -35,44 +35,52 @@ export function sortByStart(events: FreeEvent[]): FreeEvent[] {
   return [...events].sort((a, b) => getStart(a).getTime() - getStart(b).getTime());
 }
 
-export function sortByPopularity(events: FreeEvent[]): FreeEvent[] {
-  return [...events].sort((a, b) => b.interestedCount - a.interestedCount);
+/** Nearest first; events without coordinates go last (still soonest-first among themselves). */
+export function sortByDistance(events: FreeEvent[], from: LatLng): FreeEvent[] {
+  const far = Number.POSITIVE_INFINITY;
+  return sortByStart(events).sort(
+    (a, b) => (eventDistance(a, from) ?? far) - (eventDistance(b, from) ?? far),
+  );
 }
 
-/** Events that haven't finished yet, soonest first. */
+/** Events you can still go to: not finished, not cancelled. Soonest first. */
 export function upcomingEvents(events: FreeEvent[], now: Date): FreeEvent[] {
-  return sortByStart(events.filter((e) => !hasEnded(e, now)));
+  return sortByStart(events.filter((e) => !e.cancelled && !hasEnded(e, now)));
 }
 
 /**
- * "Trending": the most popular events in the next `withinDays` days.
- * Falls back to all upcoming events if the next few weeks are quiet.
+ * Applies every filter and sorts.
+ * Distance filters/sorting only apply when `location` is known (FR-4: everything
+ * still works if the user declines location).
  */
-export function getTrendingEvents(
+export function filterEvents(
   events: FreeEvent[],
+  filters: EventFilters,
   now: Date,
-  { withinDays = 14, limit = 8 } = {},
+  location: LatLng | null = null,
 ): FreeEvent[] {
-  const upcoming = upcomingEvents(events, now);
-  const cutoff = now.getTime() + withinDays * 24 * 60 * 60 * 1000;
-  const soon = upcoming.filter((e) => getStart(e).getTime() <= cutoff);
-  const pool = soon.length >= 4 ? soon : upcoming;
-  return sortByPopularity(pool).slice(0, limit);
+  const matches = upcomingEvents(events, now).filter((event) => {
+    if (filters.category !== null && event.category !== filters.category) return false;
+    if (filters.city !== null && event.city !== filters.city) return false;
+    if (!matchesWhen(event, filters, now)) return false;
+    if (!matchesQuery(event, filters.q)) return false;
+    if (filters.radius !== null && location) {
+      const miles = eventDistance(event, location);
+      if (miles === null || miles > filters.radius) return false;
+    }
+    return true;
+  });
+  return filters.sort === "nearest" && location ? sortByDistance(matches, location) : matches;
 }
 
-/** Applies every filter, hides past events, and sorts. */
-export function filterEvents(events: FreeEvent[], filters: EventFilters, now: Date): FreeEvent[] {
-  const matches = upcomingEvents(events, now).filter(
-    (event) =>
-      (filters.category === null || event.category === filters.category) &&
-      (filters.area === null || event.area === filters.area) &&
-      matchesWhen(event, filters.when, now) &&
-      matchesQuery(event, filters.q),
-  );
-  return filters.sort === "popular" ? sortByPopularity(matches) : matches;
+/** Upcoming events this weekend (for the Discover "This weekend" row). */
+export function getWeekendEvents(events: FreeEvent[], now: Date, limit = 8): FreeEvent[] {
+  return upcomingEvents(events, now)
+    .filter((e) => matchesWhen(e, { when: "weekend", from: null, to: null }, now))
+    .slice(0, limit);
 }
 
-/** Similar upcoming events (same category first, then same area). */
+/** Similar upcoming events (same category first, then same city). */
 export function getRelatedEvents(
   event: FreeEvent,
   pool: FreeEvent[],
@@ -81,20 +89,25 @@ export function getRelatedEvents(
 ): FreeEvent[] {
   const others = upcomingEvents(pool, now).filter((e) => e.id !== event.id);
   const sameCategory = others.filter((e) => e.category === event.category);
-  const sameArea = others.filter((e) => e.category !== event.category && e.area === event.area);
-  return [...sameCategory, ...sameArea].slice(0, limit);
+  const sameCity = others.filter((e) => e.category !== event.category && e.city === event.city);
+  return [...sameCategory, ...sameCity].slice(0, limit);
 }
 
-export function getSampleEvents(): FreeEvent[] {
-  return SAMPLE_EVENTS;
-}
-
-export function getSampleEventById(id: string): FreeEvent | undefined {
-  return SAMPLE_EVENTS.find((e) => e.id === id);
+/** Cities that currently have upcoming events, for the city filter. */
+export function citiesWithEvents(events: FreeEvent[], now: Date): FreeEvent["city"][] {
+  return [...new Set(upcomingEvents(events, now).map((e) => e.city))].sort();
 }
 
 /** Google Maps search link for the venue. */
 export function mapsUrl(event: FreeEvent): string {
-  const query = `${event.venue}, ${event.address}`;
+  const query =
+    event.lat !== undefined && event.lng !== undefined
+      ? `${event.lat},${event.lng}`
+      : [event.venue, event.address, event.city, "AZ"].filter(Boolean).join(", ");
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+/** "Venue, Address" without repeating the venue if there's no separate address. */
+export function fullLocation(event: FreeEvent): string {
+  return [event.venue, event.address].filter((part, i, all) => part && all.indexOf(part) === i).join(", ");
 }

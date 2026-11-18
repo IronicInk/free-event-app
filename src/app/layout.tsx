@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { EventsProvider } from "@/components/layout/EventsProvider";
 import { SiteNav } from "@/components/layout/SiteNav";
+import { getPublicEvents } from "@/lib/data/events";
 import { SITE, getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -41,13 +43,19 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // The public catalog is small (one metro), so it is loaded once here and shared with
+  // every screen. Cached for an hour (see lib/data/events.ts).
+  const events = await getPublicEvents();
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body className="min-h-dvh">
         <SiteNav />
         {/* Bottom padding keeps content clear of the mobile tab bar */}
-        <main className="pb-[calc(var(--nav-h)+env(safe-area-inset-bottom))]">{children}</main>
+        <main className="pb-[calc(var(--nav-h)+env(safe-area-inset-bottom))]">
+          <EventsProvider events={events}>{children}</EventsProvider>
+        </main>
       </body>
     </html>
   );

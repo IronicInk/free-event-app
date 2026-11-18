@@ -101,3 +101,26 @@ dialog::backdrop {
     animation: none !important;
   }
 }
+
+/* Map pins (components/map/LeafletMap.tsx): a teardrop with the category emoji */
+.vv-pin {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--surface);
+  border: 3px solid var(--accent);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.3);
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 150ms;
+}
+.vv-pin > span {
+  transform: rotate(45deg); /* keep the emoji upright */
+}
+.vv-pin--selected {
+  background: var(--accent);
+  transform: rotate(-45deg) scale(1.2);
+}

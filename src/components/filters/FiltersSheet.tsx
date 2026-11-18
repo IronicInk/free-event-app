@@ -1,28 +1,50 @@
 "use client";
 
 import { useRef } from "react";
+import { useUserLocation } from "@/hooks/useUserLocation";
 import { SORT_LABELS } from "@/lib/filters";
-import { AREAS } from "@/lib/site";
-import { SORT_OPTIONS, type EventFilters } from "@/lib/types";
+import { RADIUS_OPTIONS, SORT_OPTIONS, type EventFilters, type ValleyCity } from "@/lib/types";
 import { SlidersIcon, XIcon } from "@/components/ui/icons";
 import { Chip } from "./Chip";
+import { NearMeButton } from "./NearMeButton";
 
 interface FiltersSheetProps {
   filters: EventFilters;
   onChange: (patch: Partial<EventFilters>) => void;
   onReset: () => void;
+  /** Cities to offer (the ones that currently have events). */
+  cities: ValleyCity[];
   activeCount: number;
   resultCount: number;
 }
 
+/** How many filters live in this sheet (for its badge). */
+export function countSheetFilters(filters: EventFilters): number {
+  return [filters.city !== null, filters.sort !== "soonest", filters.radius !== null].filter(Boolean)
+    .length;
+}
+
 /**
  * "Filters" button that opens a bottom sheet on mobile (centered dialog on desktop)
- * with the less-used filters: area and sort order.
+ * with the less-used filters: city, near me, and sort order.
  * Built on <dialog>, which handles focus trapping and the Esc key for us.
  */
-export function FiltersSheet({ filters, onChange, onReset, activeCount, resultCount }: FiltersSheetProps) {
+export function FiltersSheet({
+  filters,
+  onChange,
+  onReset,
+  cities,
+  activeCount,
+  resultCount,
+}: FiltersSheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const close = () => dialogRef.current?.close();
+  const { status } = useUserLocation();
+  const hasLocation = status === "ready";
+
+  // Keep a city chosen from a shared link visible even if it has no events right now.
+  const cityOptions =
+    filters.city && !cities.includes(filters.city) ? [...cities, filters.city] : cities;
 
   return (
     <>
@@ -44,7 +66,7 @@ export function FiltersSheet({ filters, onChange, onReset, activeCount, resultCo
         ref={dialogRef}
         // Clicking the dark backdrop closes the sheet.
         onClick={(e) => e.target === e.currentTarget && close()}
-        className="m-0 mt-auto w-full max-w-none rounded-t-3xl bg-surface p-0 text-fg sm:m-auto sm:max-w-md sm:rounded-3xl"
+        className="m-0 mt-auto max-h-[90dvh] w-full max-w-none rounded-t-3xl bg-surface p-0 text-fg sm:m-auto sm:max-w-md sm:rounded-3xl"
       >
         <div className="p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
           <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border sm:hidden" aria-hidden="true" />
@@ -61,28 +83,58 @@ export function FiltersSheet({ filters, onChange, onReset, activeCount, resultCo
           </div>
 
           <fieldset>
-            <legend className="mb-2 text-sm font-semibold">Area</legend>
+            <legend className="mb-2 text-sm font-semibold">City</legend>
             <div className="flex flex-wrap gap-2">
-              <Chip active={filters.area === null} onClick={() => onChange({ area: null })}>
-                Everywhere
+              <Chip active={filters.city === null} onClick={() => onChange({ city: null })}>
+                All of the Valley
               </Chip>
-              {AREAS.map((area) => (
-                <Chip key={area} active={filters.area === area} onClick={() => onChange({ area })}>
-                  {area}
+              {cityOptions.map((city) => (
+                <Chip key={city} active={filters.city === city} onClick={() => onChange({ city })}>
+                  {city}
                 </Chip>
               ))}
             </div>
           </fieldset>
 
           <fieldset className="mt-6">
+            <legend className="mb-2 text-sm font-semibold">Near me</legend>
+            <NearMeButton />
+            {hasLocation && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Chip active={filters.radius === null} onClick={() => onChange({ radius: null })}>
+                  Any distance
+                </Chip>
+                {RADIUS_OPTIONS.map((radius) => (
+                  <Chip
+                    key={radius}
+                    active={filters.radius === radius}
+                    onClick={() => onChange({ radius })}
+                  >
+                    Within {radius} mi
+                  </Chip>
+                ))}
+              </div>
+            )}
+          </fieldset>
+
+          <fieldset className="mt-6">
             <legend className="mb-2 text-sm font-semibold">Sort by</legend>
             <div className="flex flex-wrap gap-2">
               {SORT_OPTIONS.map((sort) => (
-                <Chip key={sort} active={filters.sort === sort} onClick={() => onChange({ sort })}>
+                <Chip
+                  key={sort}
+                  active={filters.sort === sort}
+                  disabled={sort === "nearest" && !hasLocation}
+                  onClick={() => onChange({ sort })}
+                  className="disabled:cursor-not-allowed disabled:opacity-50"
+                >
                   {SORT_LABELS[sort]}
                 </Chip>
               ))}
             </div>
+            {!hasLocation && (
+              <p className="mt-2 text-xs text-muted">Turn on &ldquo;Use my location&rdquo; to sort by distance.</p>
+            )}
           </fieldset>
 
           <div className="mt-8 flex gap-3">

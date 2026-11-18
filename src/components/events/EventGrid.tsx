@@ -14,7 +14,7 @@ export function EventGrid({ events }: { events: FreeEvent[] }) {
   );
 }
 
-/** Horizontally swipeable row of cards (e.g. "Trending"). */
+/** Horizontally swipeable row of cards (e.g. "This weekend"). */
 export function EventRow({ events }: { events: FreeEvent[] }) {
   return (
     <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-4 pb-2">

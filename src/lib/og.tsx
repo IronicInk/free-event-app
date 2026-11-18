@@ -8,6 +8,8 @@ import { ImageResponse } from "next/og";
 export const OG_SIZE = { width: 1200, height: 630 };
 
 interface OgCardProps {
+  /** Pill in the corner. Defaults to "FREE". */
+  badge?: "FREE" | "CANCELLED";
   eyebrow: string;
   title: string;
   subtitle: string;
@@ -15,7 +17,7 @@ interface OgCardProps {
   background: string;
 }
 
-export function renderOgImage({ eyebrow, title, subtitle, background }: OgCardProps) {
+export function renderOgImage({ badge = "FREE", eyebrow, title, subtitle, background }: OgCardProps) {
   return new ImageResponse(
     (
       <div
@@ -37,13 +39,13 @@ export function renderOgImage({ eyebrow, title, subtitle, background }: OgCardPr
               display: "flex",
               padding: "10px 24px",
               borderRadius: 999,
-              background: "#16a34a",
+              background: badge === "FREE" ? "#16a34a" : "#111114",
               fontSize: 30,
               fontWeight: 700,
               letterSpacing: 2,
             }}
           >
-            FREE
+            {badge}
           </div>
           <div style={{ display: "flex", fontSize: 30, opacity: 0.9 }}>{eyebrow}</div>
         </div>

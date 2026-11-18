@@ -145,3 +145,40 @@ export const InfoIcon = (p: IconProps) => (
     <path d="M12 16v-4M12 8h.01" />
   </Icon>
 );
+
+export const RepeatIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m17 2 4 4-4 4" />
+    <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+    <path d="m7 22-4-4 4-4" />
+    <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+  </Icon>
+);
+
+export const MapIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M14.1 5.1 9.9 2.9a2 2 0 0 0-1.8 0L3.6 5.2A1 1 0 0 0 3 6.1v13.3a1 1 0 0 0 1.4.9l3.7-1.9a2 2 0 0 1 1.8 0l4.2 2.2a2 2 0 0 0 1.8 0l4.5-2.3a1 1 0 0 0 .6-.9V4.6a1 1 0 0 0-1.4-.9l-3.7 1.9a2 2 0 0 1-1.8 0z" />
+    <path d="M15 5.8v15M9 3.2v15" />
+  </Icon>
+);
+
+export const LocateIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M2 12h3M19 12h3M12 2v3M12 19v3" />
+    <circle cx="12" cy="12" r="7" />
+    <circle cx="12" cy="12" r="3" />
+  </Icon>
+);
+
+export const AlertIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3" />
+    <path d="M12 9v4M12 17h.01" />
+  </Icon>
+);
+
+export const ListIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+  </Icon>
+);

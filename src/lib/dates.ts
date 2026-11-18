@@ -78,9 +78,32 @@ export function isLive(event: FreeEvent, now: Date): boolean {
   return getStart(event) <= now && !hasEnded(event, now);
 }
 
-/** Does the event start inside the chosen date chip? */
-export function matchesWhen(event: FreeEvent, when: When, now: Date): boolean {
+/** True for a real "YYYY-MM-DD" calendar date. */
+export function isDayKey(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [y, m, d] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+}
+
+/**
+ * Does the event fall inside the chosen date filter?
+ * For a custom range ("dates"), an event matches if it is happening on any day
+ * from `from` to `to` (inclusive). Either end may be left open.
+ */
+export function matchesWhen(
+  event: FreeEvent,
+  { when, from, to }: { when: When; from: string | null; to: string | null },
+  now: Date,
+): boolean {
   if (when === "any") return true;
+
+  if (when === "dates") {
+    const startDay = dayKey(getStart(event));
+    const endDay = dayKey(getEnd(event));
+    // "YYYY-MM-DD" strings compare correctly as plain text.
+    return (from === null || endDay >= from) && (to === null || startDay <= to);
+  }
 
   const diff = calendarDaysBetween(now, getStart(event));
   switch (when) {
@@ -135,7 +158,3 @@ export function dateBadgeParts(date: Date): { month: string; day: string } {
   return { month: monthFmt.format(date).toUpperCase(), day: dayOfMonthFmt.format(date) };
 }
 
-/** Builds an ISO string from form inputs ("2026-11-21" + "18:00"). */
-export function toIsoInSiteZone(date: string, time: string): string {
-  return `${date}T${time}:00${SITE.utcOffset}`;
-}

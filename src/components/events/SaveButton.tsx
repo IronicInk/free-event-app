@@ -2,16 +2,13 @@
 
 import { useSavedEvents } from "@/hooks/useSavedEvents";
 import { BookmarkIcon } from "@/components/ui/icons";
-import { formatCount } from "@/lib/format";
 
 interface SaveButtonProps {
   eventId: string;
   eventTitle: string;
-  /** Used by the "rail" variant to show the interested count. */
-  interestedCount?: number;
   /**
    * - overlay: small round button on top of a card cover
-   * - rail: TikTok-style icon + count on the Explore feed
+   * - rail: TikTok-style icon + label on the Explore feed
    * - pill: full button on the event page
    */
   variant?: "overlay" | "rail" | "pill";
@@ -20,7 +17,6 @@ interface SaveButtonProps {
 export function SaveButton({
   eventId,
   eventTitle,
-  interestedCount = 0,
   variant = "overlay",
 }: SaveButtonProps) {
   const { isSaved, toggleSaved } = useSavedEvents();
@@ -50,8 +46,7 @@ export function SaveButton({
         >
           {icon}
         </span>
-        {/* Saving adds the user to the count, like a "like" */}
-        {formatCount(interestedCount + (saved ? 1 : 0))}
+        {saved ? "Saved" : "Save"}
       </button>
     );
   }

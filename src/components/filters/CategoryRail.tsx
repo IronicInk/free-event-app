@@ -29,7 +29,7 @@ export function CategoryRail({ selected, onSelect }: CategoryRailProps) {
                 type="button"
                 onClick={() => onSelect(active && item.id !== null ? null : item.id)}
                 aria-pressed={active}
-                className="flex w-16 flex-col items-center gap-1.5 text-xs font-medium"
+                className="flex w-20 flex-col items-center gap-1.5 text-xs font-medium"
               >
                 {/* Gradient ring = active, like an unseen story */}
                 <span
@@ -40,7 +40,7 @@ export function CategoryRail({ selected, onSelect }: CategoryRailProps) {
                     {item.emoji}
                   </span>
                 </span>
-                <span className={active ? "text-fg" : "text-muted"}>{item.label}</span>
+                <span className={`text-center leading-tight ${active ? "text-fg" : "text-muted"}`}>{item.label}</span>
               </button>
             </li>
           );

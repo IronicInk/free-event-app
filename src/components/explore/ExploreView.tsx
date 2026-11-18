@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import { useAllEvents } from "@/hooks/useEvents";
-import { useEventFilters } from "@/hooks/useEventFilters";
-import { useNow } from "@/hooks/useNow";
+import { useFilteredEvents } from "@/hooks/useFilteredEvents";
 import { CATEGORIES, getCategory } from "@/lib/categories";
 import { formatTime, getStart, relativeDayLabel } from "@/lib/dates";
-import { filterEvents } from "@/lib/events";
 import type { FreeEvent } from "@/lib/types";
 import { EventCover } from "@/components/events/EventCover";
 import { SaveButton } from "@/components/events/SaveButton";
@@ -21,10 +17,7 @@ import { InfoIcon, MapPinIcon } from "@/components/ui/icons";
  * Respects the same URL filters as Discover (?category=music&when=today…).
  */
 export function ExploreView() {
-  const { filters, setFilters } = useEventFilters();
-  const allEvents = useAllEvents();
-  const now = useNow();
-  const events = useMemo(() => filterEvents(allEvents, filters, now), [allEvents, filters, now]);
+  const { filters, setFilters, results: events, now } = useFilteredEvents();
 
   return (
     // Fills the screen between the header and the mobile tab bar.
@@ -32,7 +25,7 @@ export function ExploreView() {
       {/* Floating category chips */}
       <div className="no-scrollbar absolute inset-x-0 top-3 z-20 flex gap-2 overflow-x-auto px-3 md:top-7">
         <FeedChip active={filters.category === null} onClick={() => setFilters({ category: null })}>
-          For you
+          All
         </FeedChip>
         {CATEGORIES.map((c) => (
           <FeedChip
@@ -50,7 +43,7 @@ export function ExploreView() {
           <EmptyState
             emoji="🌵"
             title="Nothing here yet"
-            message="No upcoming events in this category. Try another one!"
+            message="No free events match these filters. Try another category."
           />
         </div>
       ) : (
@@ -107,7 +100,6 @@ function FeedSlide({ event, now }: { event: FreeEvent; now: Date }) {
         <SaveButton
           eventId={event.id}
           eventTitle={event.title}
-          interestedCount={event.interestedCount}
           variant="rail"
         />
         <ShareButton path={`/events/${event.id}`} title={event.title} variant="rail" />
@@ -137,12 +129,13 @@ function FeedSlide({ event, now }: { event: FreeEvent; now: Date }) {
           </Link>
         </h2>
         <p className="mt-1.5 text-sm font-semibold">
-          {relativeDayLabel(start, now)} · {formatTime(start)}
+          {relativeDayLabel(start, now)} · {event.allDay ? "All day" : formatTime(start)}
         </p>
         <p className="mt-0.5 flex items-center gap-1 text-sm text-white/80">
           <MapPinIcon className="size-3.5 shrink-0" />
           <span className="truncate">
-            {event.venue} · {event.area}
+            {event.venue ? `${event.venue} · ` : ""}
+            {event.city}
           </span>
         </p>
         <p className="mt-2 line-clamp-2 text-sm text-white/80">{event.description}</p>

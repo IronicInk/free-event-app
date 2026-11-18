@@ -1,26 +1,39 @@
 /**
  * Site-wide settings.
- * Change the app name, region or areas here and it updates everywhere.
+ * Change the app name, region or map tiles here and it updates everywhere.
  */
+import { VALLEY_TIMEZONE } from "@shared/event-model";
 
 export const SITE = {
-  name: "Free Event App",
-  tagline: "Free things to do near you",
+  /** Working / placeholder name (PROJECT_REQUIREMENTS.md, open question 20). */
+  name: "Valley Vibe",
+  shortName: "Valley Vibe",
+  tagline: "Free things to do in the Valley",
   description:
-    "Discover free events happening around you. No tickets, no fees, just fun things to do.",
+    "A curated list of free local events across the Phoenix metro: farmers markets, festivals, celebrations, parks, arts and more. No tickets, no fees.",
 
   /**
-   * All event times are shown in this time zone.
+   * All event times are shown in this time zone (NFR-1).
    * Arizona does not observe daylight saving, so the offset is always -07:00.
-   * If the app expands beyond Arizona, store a time zone per event instead.
    */
-  timeZone: "America/Phoenix",
+  timeZone: VALLEY_TIMEZONE,
   utcOffset: "-07:00",
+
+  /** Map center when the user hasn't shared their location (downtown Phoenix). */
+  mapCenter: { lat: 33.4484, lng: -112.074 },
+
+  /**
+   * Map tiles. OpenStreetMap's public tiles are fine for development and light use,
+   * but their usage policy asks heavy users to pick a tile provider. Choose one before launch.
+   */
+  mapTiles: {
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
 } as const;
 
-/** Areas (cities / neighborhoods) people can filter by and publish to. */
-export const AREAS = ["Tempe", "Phoenix", "Mesa", "Scottsdale", "Chandler"] as const;
-export type Area = (typeof AREAS)[number];
+export { VALLEY_CITIES as CITIES } from "@shared/event-model";
+export type { ValleyCity as City } from "@shared/event-model";
 
 /**
  * Absolute base URL, needed for social share previews (Open Graph).

@@ -9,8 +9,8 @@ export const contentType = "image/png";
 export default function Image() {
   return renderOgImage({
     eyebrow: SITE.name,
-    title: "Find something free to do",
-    subtitle: "Music, art, food, outdoors & more. No tickets, no fees.",
+    title: "Free things to do in the Valley",
+    subtitle: "Farmers markets, festivals, celebrations & more. No tickets, no fees.",
     background: "linear-gradient(135deg, #ff2d6f, #ff8a00)",
   });
 }
