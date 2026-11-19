@@ -4,6 +4,7 @@ import { WHEN_LABELS } from "@/lib/filters";
 import { dayKey } from "@/lib/dates";
 import { WHEN_OPTIONS, type EventFilters } from "@/lib/types";
 import { useNow } from "@/hooks/useNow";
+import { useScrollFade } from "@/hooks/useScrollFade";
 import { Chip } from "./Chip";
 
 interface WhenChipsProps {
@@ -17,10 +18,16 @@ interface WhenChipsProps {
  */
 export function WhenChips({ filters, onChange }: WhenChipsProps) {
   const today = dayKey(useNow());
+  const scrollRef = useScrollFade<HTMLDivElement>();
 
   return (
     <div>
-      <div role="group" aria-label="When" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
+      <div
+        ref={scrollRef}
+        role="group"
+        aria-label="When"
+        className="no-scrollbar scroll-fade -mx-4 flex gap-2 overflow-x-auto px-4"
+      >
         {WHEN_OPTIONS.map((when) => (
           <Chip
             key={when}

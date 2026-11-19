@@ -1,3 +1,6 @@
+"use client";
+
+import { useScrollFade } from "@/hooks/useScrollFade";
 import type { FreeEvent } from "@/lib/types";
 import { EventCard } from "./EventCard";
 
@@ -19,10 +22,17 @@ export function EventGrid({ events }: { events: FreeEvent[] }) {
  * Cards are ~80% wide on phones so the next one peeks in, signalling "swipe for more".
  */
 export function EventRow({ events }: { events: FreeEvent[] }) {
+  const scrollRef = useScrollFade<HTMLUListElement>();
   return (
-    <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-1">
+    <ul
+      ref={scrollRef}
+      className="no-scrollbar scroll-fade -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-1"
+    >
       {events.map((event) => (
-        <li key={event.id} className="w-[80%] max-w-80 shrink-0 snap-start sm:w-72">
+        <li
+          key={event.id}
+          className="w-[80%] max-w-80 shrink-0 snap-start sm:w-72"
+        >
           <EventCard event={event} coverAspect="landscape" />
         </li>
       ))}

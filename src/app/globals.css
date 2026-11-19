@@ -125,3 +125,46 @@ dialog::backdrop {
   transform: rotate(-45deg) scale(1.2);
 }
 
+
+/*
+ * Edge fade for horizontal scrollers (hooks/useScrollFade.ts).
+ * A mask (not a coloured overlay), so it works on any background, including photos.
+ * The fade widths animate in and out as you reach either end.
+ */
+@property --fade-l {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+.scroll-fade {
+  --fade-l: 0px;
+  --fade-r: 0px;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--fade-l),
+    #000 calc(100% - var(--fade-r)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--fade-l),
+    #000 calc(100% - var(--fade-r)),
+    transparent
+  );
+  transition:
+    --fade-l 200ms ease,
+    --fade-r 200ms ease;
+}
+.scroll-fade[data-fade-left] {
+  --fade-l: 24px;
+}
+.scroll-fade[data-fade-right] {
+  --fade-r: 56px;
+}

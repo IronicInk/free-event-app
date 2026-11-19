@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useFilteredEvents } from "@/hooks/useFilteredEvents";
+import { useScrollFade } from "@/hooks/useScrollFade";
 import { CATEGORIES, getCategory } from "@/lib/categories";
 import { formatTime, getStart, relativeDayLabel } from "@/lib/dates";
 import type { FreeEvent } from "@/lib/types";
@@ -18,12 +19,16 @@ import { InfoIcon, MapPinIcon } from "@/components/ui/icons";
  */
 export function ExploreView() {
   const { filters, setFilters, results: events, now } = useFilteredEvents();
+  const chipsRef = useScrollFade<HTMLDivElement>();
 
   return (
     // Fills the screen between the header and the mobile tab bar.
     <div className="relative mx-auto h-[calc(100dvh-var(--header-h)-var(--nav-h)-env(safe-area-inset-bottom))] max-w-md md:py-4">
       {/* Floating category chips */}
-      <div className="no-scrollbar absolute inset-x-0 top-3 z-20 flex gap-2 overflow-x-auto px-3 md:top-7">
+      <div
+        ref={chipsRef}
+        className="no-scrollbar scroll-fade absolute inset-x-0 top-3 z-20 flex gap-2 overflow-x-auto px-3 md:top-7"
+      >
         <FeedChip active={filters.category === null} onClick={() => setFilters({ category: null })}>
           All
         </FeedChip>
