@@ -45,7 +45,7 @@ export function MapView() {
 
   return (
     <div className="flex h-[calc(100dvh-var(--header-h)-var(--nav-h)-env(safe-area-inset-bottom))] flex-col">
-      <div className="mx-auto w-full max-w-6xl space-y-3 px-4 pt-2 pb-3">
+      <div className="mx-auto w-full max-w-6xl space-y-4 px-4 pt-3 pb-4">
         <h1 className="sr-only">Map of free events</h1>
         <CategoryRail selected={filters.category} onSelect={(category) => setFilters({ category })} />
         <WhenChips filters={filters} onChange={setFilters} />

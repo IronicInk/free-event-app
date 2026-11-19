@@ -14,8 +14,8 @@ import { WhenChips } from "@/components/filters/WhenChips";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ChevronRightIcon, InfoIcon, MapIcon, ZapIcon } from "@/components/ui/icons";
 
-/** Height of the sticky search bar (12px + 48px + 12px). Day headings stick just below it. */
-const STICKY_TOP = "calc(var(--header-h) + 72px)";
+/** Height of the sticky search bar (16px + 48px + 16px). Day headings stick just below it. */
+const STICKY_TOP = "calc(var(--header-h) + 80px)";
 
 /**
  * Home screen (FR-1, FR-2, FR-5). Two modes:
@@ -44,7 +44,7 @@ export function DiscoverView() {
       </p>
 
       {/* Sticky search + filters so they're always one thumb-tap away */}
-      <div className="sticky top-[var(--header-h)] z-30 -mx-4 mt-5 bg-bg/90 px-4 py-3 backdrop-blur-md">
+      <div className="sticky top-[var(--header-h)] z-30 -mx-4 mt-6 bg-bg/90 px-4 py-4 backdrop-blur-md">
         <div className="flex gap-3">
           <SearchBar value={filters.q} onChange={(q) => setFilters({ q })} />
           <FiltersSheet
@@ -58,13 +58,13 @@ export function DiscoverView() {
         </div>
       </div>
 
-      <div className="mt-1 space-y-4">
+      <div className="mt-2 space-y-6">
         <CategoryRail selected={filters.category} onSelect={(category) => setFilters({ category })} />
         <WhenChips filters={filters} onChange={setFilters} />
       </div>
 
       {isSampleData && (
-        <p className="mt-5 flex items-center gap-2 rounded-xl bg-surface-2 px-3.5 py-2.5 text-[13px] text-muted">
+        <p className="mt-6 flex items-center gap-2 rounded-xl bg-surface-2 px-3.5 py-2.5 text-[13px] text-muted">
           <InfoIcon className="size-4 shrink-0" />
           Preview: these are sample events.
         </p>

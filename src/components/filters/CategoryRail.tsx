@@ -34,7 +34,7 @@ export function CategoryRail({ selected, onSelect }: CategoryRailProps) {
                 type="button"
                 onClick={() => onSelect(active && item.id !== null ? null : item.id)}
                 aria-pressed={active}
-                className={`relative flex min-w-11 flex-col items-center gap-1 pt-1 pb-3 text-xs font-semibold whitespace-nowrap transition ${
+                className={`relative flex min-w-11 flex-col items-center gap-1.5 pt-2 pb-4 text-xs font-semibold whitespace-nowrap transition ${
                   active ? "text-fg" : "text-muted hover:text-fg"
                 }`}
               >
