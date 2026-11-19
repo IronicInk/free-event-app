@@ -158,3 +158,17 @@ export function dateBadgeParts(date: Date): { month: string; day: string } {
   return { month: monthFmt.format(date).toUpperCase(), day: dayOfMonthFmt.format(date) };
 }
 
+
+
+/** Groups events (already sorted by start) into consecutive days. */
+export function groupByDay<T extends FreeEvent>(events: T[]): { key: string; date: Date; events: T[] }[] {
+  const groups: { key: string; date: Date; events: T[] }[] = [];
+  for (const event of events) {
+    const start = getStart(event);
+    const key = dayKey(start);
+    const last = groups.at(-1);
+    if (last && last.key === key) last.events.push(event);
+    else groups.push({ key, date: start, events: [event] });
+  }
+  return groups;
+}

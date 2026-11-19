@@ -23,7 +23,7 @@
 
   /* Layout sizes used for full-height screens (Explore feed) */
   --header-h: 56px;
-  --nav-h: 64px;
+  --nav-h: 68px;
 }
 
 /* Desktop: no bottom tab bar */
@@ -124,3 +124,4 @@ dialog::backdrop {
   background: var(--accent);
   transform: rotate(-45deg) scale(1.2);
 }
+

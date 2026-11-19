@@ -16,6 +16,8 @@ interface FiltersSheetProps {
   cities: ValleyCity[];
   activeCount: number;
   resultCount: number;
+  /** Overrides the trigger button's look (e.g. floating on the map). */
+  buttonClassName?: string;
 }
 
 /** How many filters live in this sheet (for its badge). */
@@ -36,6 +38,7 @@ export function FiltersSheet({
   cities,
   activeCount,
   resultCount,
+  buttonClassName = "bg-surface-2 hover:bg-border",
 }: FiltersSheetProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const close = () => dialogRef.current?.close();
@@ -52,7 +55,7 @@ export function FiltersSheet({
         type="button"
         onClick={() => dialogRef.current?.showModal()}
         aria-label={`Filters${activeCount ? `, ${activeCount} active` : ""}`}
-        className="relative grid size-12 shrink-0 place-items-center rounded-full bg-surface-2 transition hover:bg-border active:scale-95"
+        className={`relative grid size-12 shrink-0 place-items-center rounded-full transition active:scale-95 ${buttonClassName}`}
       >
         <SlidersIcon className="size-5" />
         {activeCount > 0 && (
@@ -68,7 +71,7 @@ export function FiltersSheet({
         onClick={(e) => e.target === e.currentTarget && close()}
         className="m-0 mt-auto max-h-[90dvh] w-full max-w-none rounded-t-3xl bg-surface p-0 text-fg sm:m-auto sm:max-w-md sm:rounded-3xl"
       >
-        <div className="p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+        <div className="px-5 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pt-5">
           <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-border sm:hidden" aria-hidden="true" />
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-lg font-bold">Filters</h2>
@@ -76,14 +79,14 @@ export function FiltersSheet({
               type="button"
               onClick={close}
               aria-label="Close filters"
-              className="grid size-9 place-items-center rounded-full hover:bg-surface-2"
+              className="-mr-2 grid size-11 place-items-center rounded-full hover:bg-surface-2"
             >
               <XIcon className="size-5" />
             </button>
           </div>
 
           <fieldset>
-            <legend className="mb-2 text-sm font-semibold">City</legend>
+            <legend className="mb-3 text-[15px] font-semibold">City</legend>
             <div className="flex flex-wrap gap-2">
               <Chip active={filters.city === null} onClick={() => onChange({ city: null })}>
                 All of the Valley
@@ -96,8 +99,8 @@ export function FiltersSheet({
             </div>
           </fieldset>
 
-          <fieldset className="mt-6">
-            <legend className="mb-2 text-sm font-semibold">Near me</legend>
+          <fieldset className="mt-7">
+            <legend className="mb-3 text-[15px] font-semibold">Near me</legend>
             <NearMeButton />
             {hasLocation && (
               <div className="mt-3 flex flex-wrap gap-2">
@@ -117,8 +120,8 @@ export function FiltersSheet({
             )}
           </fieldset>
 
-          <fieldset className="mt-6">
-            <legend className="mb-2 text-sm font-semibold">Sort by</legend>
+          <fieldset className="mt-7">
+            <legend className="mb-3 text-[15px] font-semibold">Sort by</legend>
             <div className="flex flex-wrap gap-2">
               {SORT_OPTIONS.map((sort) => (
                 <Chip
@@ -141,14 +144,14 @@ export function FiltersSheet({
             <button
               type="button"
               onClick={onReset}
-              className="flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold hover:bg-border"
+              className="h-12 flex-1 rounded-full bg-surface-2 text-sm font-semibold hover:bg-border"
             >
               Reset all
             </button>
             <button
               type="button"
               onClick={close}
-              className="bg-brand flex-[2] rounded-full py-3 text-sm font-semibold text-accent-fg"
+              className="bg-brand h-12 flex-[2] rounded-full text-sm font-semibold text-accent-fg"
             >
               Show {resultCount} {resultCount === 1 ? "event" : "events"}
             </button>

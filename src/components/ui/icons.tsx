@@ -182,3 +182,15 @@ export const ListIcon = (p: IconProps) => (
     <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
   </Icon>
 );
+
+export const ChevronRightIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m9 18 6-6-6-6" />
+  </Icon>
+);
+
+export const NavigationIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m3 11 19-9-9 19-2-8-8-2z" />
+  </Icon>
+);

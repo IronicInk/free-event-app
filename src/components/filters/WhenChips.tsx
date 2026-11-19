@@ -39,7 +39,7 @@ export function WhenChips({ filters, onChange }: WhenChipsProps) {
       </div>
 
       {filters.when === "dates" && (
-        <div className="mt-3 flex flex-wrap items-end gap-3">
+        <div className="mt-3 grid grid-cols-2 gap-3">
           <label className="text-xs font-semibold text-muted">
             From
             <input
@@ -47,7 +47,7 @@ export function WhenChips({ filters, onChange }: WhenChipsProps) {
               value={filters.from ?? ""}
               min={today}
               onChange={(e) => onChange({ from: e.target.value || null })}
-              className="mt-1 block rounded-xl bg-surface-2 px-3 py-2 text-sm text-fg"
+              className="mt-1.5 block h-11 w-full rounded-xl bg-surface-2 px-3 text-[16px] text-fg"
             />
           </label>
           <label className="text-xs font-semibold text-muted">
@@ -57,7 +57,7 @@ export function WhenChips({ filters, onChange }: WhenChipsProps) {
               value={filters.to ?? ""}
               min={filters.from ?? today}
               onChange={(e) => onChange({ to: e.target.value || null })}
-              className="mt-1 block rounded-xl bg-surface-2 px-3 py-2 text-sm text-fg"
+              className="mt-1.5 block h-11 w-full rounded-xl bg-surface-2 px-3 text-[16px] text-fg"
             />
           </label>
         </div>

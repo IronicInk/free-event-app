@@ -8,7 +8,7 @@ interface ShareButtonProps {
   path: string;
   title: string;
   text?: string;
-  variant?: "rail" | "pill" | "icon";
+  variant?: "rail" | "pill" | "icon" | "overlay";
 }
 
 /**
@@ -57,6 +57,19 @@ export function ShareButton({ path, title, text, variant = "pill" }: ShareButton
           <Icon className="size-6" />
         </span>
         {copied ? "Copied" : "Share"}
+      </button>
+    );
+  }
+
+  if (variant === "overlay") {
+    return (
+      <button
+        type="button"
+        onClick={handleShare}
+        aria-label={copied ? "Link copied" : `Share ${title}`}
+        className="grid size-10 place-items-center rounded-full bg-black/35 text-white backdrop-blur-md transition hover:bg-black/50 active:scale-90"
+      >
+        <Icon className="size-5" />
       </button>
     );
   }

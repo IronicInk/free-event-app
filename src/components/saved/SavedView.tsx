@@ -8,7 +8,7 @@ import { useNow } from "@/hooks/useNow";
 import { useSavedEvents } from "@/hooks/useSavedEvents";
 import { hasEnded } from "@/lib/dates";
 import { sortByStart } from "@/lib/events";
-import { EventGrid } from "@/components/events/EventGrid";
+import { EventList } from "@/components/events/EventList";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CardGridSkeleton } from "@/components/ui/Skeletons";
 
@@ -36,9 +36,9 @@ export function SavedView() {
   if (!isClient) return <CardGridSkeleton count={4} />;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-5 pb-12">
-      <h1 className="text-3xl font-bold tracking-tight">Saved</h1>
-      <p className="mt-1 text-muted">Events you&apos;ve bookmarked. Saved on this device only, no account needed.</p>
+    <div className="mx-auto max-w-6xl px-4 pt-6 pb-16 md:pt-10">
+      <h1 className="text-[28px] leading-[1.15] font-bold tracking-tight sm:text-4xl">Saved</h1>
+      <p className="mt-2 text-[15px] leading-relaxed text-muted">Events you&apos;ve bookmarked. Saved on this device only, no account needed.</p>
 
       {unlisted.length > 0 && (
         <p className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">
@@ -60,25 +60,25 @@ export function SavedView() {
           title="Nothing saved yet"
           message="Tap the bookmark on any event to keep it here for later."
           action={
-            <Link href="/" className="bg-brand rounded-full px-5 py-3 text-sm font-semibold text-accent-fg">
+            <Link href="/" className="bg-brand inline-flex h-12 items-center rounded-full px-6 text-sm font-semibold text-accent-fg">
               Find events
             </Link>
           }
         />
       ) : (
         <>
-          <section className="mt-6">
-            <h2 className="mb-4 text-lg font-semibold">Upcoming ({upcoming.length})</h2>
+          <section className="mt-8">
+            <h2 className="mb-3 text-xl font-bold tracking-tight">Upcoming ({upcoming.length})</h2>
             {upcoming.length > 0 ? (
-              <EventGrid events={upcoming} />
+              <EventList events={upcoming} />
             ) : (
               <p className="text-sm text-muted">No upcoming saved events.</p>
             )}
           </section>
           {past.length > 0 && (
             <section className="mt-10 opacity-70">
-              <h2 className="mb-4 text-lg font-semibold">Past ({past.length})</h2>
-              <EventGrid events={past} />
+              <h2 className="mb-3 text-xl font-bold tracking-tight">Past ({past.length})</h2>
+              <EventList events={past} groupByDate={false} />
             </section>
           )}
         </>

@@ -3,7 +3,15 @@
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect, useMemo } from "react";
-import { CircleMarker, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import {
+  AttributionControl,
+  CircleMarker,
+  MapContainer,
+  Marker,
+  TileLayer,
+  ZoomControl,
+  useMap,
+} from "react-leaflet";
 import { getCategory } from "@/lib/categories";
 import { SITE } from "@/lib/site";
 import type { FreeEvent, LatLng } from "@/lib/types";
@@ -45,6 +53,8 @@ function FitToEvents({ events, userLocation }: { events: FreeEvent[]; userLocati
 }
 
 export default function LeafletMap({ events, selectedId, onSelect, userLocation }: LeafletMapProps) {
+  // Client-only component (loaded with ssr:false), so window is available.
+  const hasMouse = window.matchMedia("(pointer: fine)").matches;
   const markers = useMemo(
     () =>
       events.map((event) => (
@@ -67,7 +77,13 @@ export default function LeafletMap({ events, selectedId, onSelect, userLocation 
       zoom={10}
       className="size-full"
       scrollWheelZoom
+      zoomControl={false}
+      attributionControl={false}
     >
+      {/* +/- buttons only for mouse users; phones pinch to zoom. Top-right, clear of the event count. */}
+      {hasMouse && <ZoomControl position="topright" />}
+      {/* Bottom-left, so it never sits under the floating buttons on the right. */}
+      <AttributionControl position="bottomleft" prefix={false} />
       <TileLayer url={SITE.mapTiles.url} attribution={SITE.mapTiles.attribution} />
       {markers}
       {userLocation && (

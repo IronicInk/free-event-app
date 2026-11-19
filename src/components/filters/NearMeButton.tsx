@@ -29,7 +29,7 @@ export function NearMeButton({ onLocated }: { onLocated?: () => void }) {
         }}
         disabled={status === "locating"}
         aria-pressed={status === "ready"}
-        className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 disabled:opacity-60 ${
+        className={`flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition active:scale-95 disabled:opacity-60 ${
           status === "ready" ? "bg-fg text-bg" : "bg-surface-2 hover:bg-border"
         }`}
       >

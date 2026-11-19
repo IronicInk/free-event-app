@@ -14,14 +14,16 @@ import { SaveButton } from "./SaveButton";
 interface EventCardProps {
   event: FreeEvent;
   className?: string;
-  /** Cover shape. Portrait by default; the map popup uses a wide cover. */
-  coverAspect?: "portrait" | "wide";
+  /** Cover shape: portrait (grid), landscape (carousels) or wide. */
+  coverAspect?: "portrait" | "landscape" | "wide";
 }
 
 /**
  * Portrait card: big visual, date badge, FREE / CANCELLED tag,
  * then title / when / where underneath.
  */
+const ASPECT = { portrait: "aspect-[4/5]", landscape: "aspect-[4/3]", wide: "aspect-[16/9]" } as const;
+
 export function EventCard({ event, className = "", coverAspect = "portrait" }: EventCardProps) {
   const now = useNow();
   const { location } = useUserLocation();
@@ -39,7 +41,7 @@ export function EventCard({ event, className = "", coverAspect = "portrait" }: E
       >
         <EventCover
           event={event}
-          className={`${coverAspect === "wide" ? "aspect-[16/9]" : "aspect-[4/5]"} rounded-2xl transition duration-300 group-hover:scale-[1.02] ${
+          className={`${ASPECT[coverAspect]} rounded-2xl transition duration-300 group-hover:scale-[1.02] ${
             event.cancelled ? "grayscale" : ""
           }`}
         >
@@ -68,24 +70,24 @@ export function EventCard({ event, className = "", coverAspect = "portrait" }: E
           </div>
         </EventCover>
 
-        <div className="mt-3 space-y-1 px-0.5">
-          <p className="text-xs font-semibold text-accent">
+        <div className="mt-3 space-y-1.5 px-0.5">
+          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-accent">
             {relativeDayLabel(start, now)} · {event.allDay ? "All day" : formatTime(start)}
+            {event.recurrenceNote && (
+              <RepeatIcon className="size-3.5 shrink-0 text-muted" aria-label="Repeats" />
+            )}
           </p>
-          <h3 className={`line-clamp-2 leading-snug font-semibold ${event.cancelled ? "line-through" : ""}`}>
+          <h3
+            className={`line-clamp-2 text-[16px] leading-snug font-semibold ${event.cancelled ? "line-through" : ""}`}
+          >
             {event.title}
           </h3>
-          <p className="flex items-center gap-1 truncate text-sm text-muted">
+          <p className="flex items-center gap-1 text-[13px] text-muted">
             <MapPinIcon className="size-3.5 shrink-0" />
             <span className="truncate">
-              {event.venue ? `${event.venue} · ` : ""}
-              {event.city}
+              {event.venue || category.label} · {event.city}
               {miles !== null && ` · ${formatDistance(miles)}`}
             </span>
-          </p>
-          <p className="flex items-center gap-1 text-xs text-muted">
-            {event.recurrenceNote && <RepeatIcon className="size-3.5 shrink-0" aria-label="Repeats" />}
-            {category.emoji} {category.label}
           </p>
         </div>
       </Link>

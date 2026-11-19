@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORIES, categoryGradient } from "@/lib/categories";
+import { CATEGORIES } from "@/lib/categories";
 import type { CategoryId } from "@/lib/types";
 
 interface CategoryRailProps {
@@ -9,38 +9,48 @@ interface CategoryRailProps {
 }
 
 /**
- * Instagram "Stories"-style row of category circles.
- * Tap to filter; tap the active one again to clear.
+ * Swipeable category tabs: emoji over a one-line label, with an underline on the active tab.
+ * Compact (about 64px tall) so events show up sooner on a phone screen.
+ * Tap the active category again to clear it.
  */
 export function CategoryRail({ selected, onSelect }: CategoryRailProps) {
   const items = [
-    { id: null, label: "All", emoji: "✨", background: "linear-gradient(135deg, var(--accent), var(--accent-2))" },
-    ...CATEGORIES.map((c) => ({ id: c.id, label: c.label, emoji: c.emoji, background: categoryGradient(c.id) })),
+    { id: null, label: "All", emoji: "✨" },
+    ...CATEGORIES.map((c) => ({ id: c.id, label: c.label, emoji: c.emoji })),
   ];
 
   return (
-    <div role="group" aria-label="Categories" className="no-scrollbar -mx-4 overflow-x-auto px-4">
-      <ul className="flex gap-3 py-1">
+    <div
+      role="group"
+      aria-label="Categories"
+      className="no-scrollbar -mx-4 overflow-x-auto border-b border-border px-4"
+    >
+      <ul className="flex gap-6">
         {items.map((item) => {
           const active = selected === item.id;
           return (
-            <li key={item.label}>
+            <li key={item.label} className="shrink-0">
               <button
                 type="button"
                 onClick={() => onSelect(active && item.id !== null ? null : item.id)}
                 aria-pressed={active}
-                className="flex w-20 flex-col items-center gap-1.5 text-xs font-medium"
+                className={`relative flex min-w-11 flex-col items-center gap-1 pt-1 pb-3 text-xs font-semibold whitespace-nowrap transition ${
+                  active ? "text-fg" : "text-muted hover:text-fg"
+                }`}
               >
-                {/* Gradient ring = active, like an unseen story */}
                 <span
-                  className="rounded-full p-[3px] transition"
-                  style={{ background: active ? item.background : "var(--border)" }}
+                  className="text-2xl leading-none"
+                  aria-hidden="true"
                 >
-                  <span className="grid size-14 place-items-center rounded-full border-[3px] border-bg bg-surface-2 text-2xl transition active:scale-90">
-                    {item.emoji}
-                  </span>
+                  {item.emoji}
                 </span>
-                <span className={`text-center leading-tight ${active ? "text-fg" : "text-muted"}`}>{item.label}</span>
+                {item.label}
+                <span
+                  className={`absolute inset-x-0 -bottom-px h-0.5 rounded-full transition ${
+                    active ? "bg-fg" : "bg-transparent"
+                  }`}
+                  aria-hidden="true"
+                />
               </button>
             </li>
           );

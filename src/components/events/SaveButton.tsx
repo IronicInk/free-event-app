@@ -10,8 +10,9 @@ interface SaveButtonProps {
    * - overlay: small round button on top of a card cover
    * - rail: TikTok-style icon + label on the Explore feed
    * - pill: full button on the event page
+   * - plain: borderless icon button at the end of a list row
    */
-  variant?: "overlay" | "rail" | "pill";
+  variant?: "overlay" | "rail" | "pill" | "plain";
 }
 
 export function SaveButton({
@@ -51,6 +52,22 @@ export function SaveButton({
     );
   }
 
+  if (variant === "plain") {
+    return (
+      <button
+        type="button"
+        onClick={() => toggleSaved(eventId)}
+        aria-pressed={saved}
+        aria-label={label}
+        className={`grid size-11 place-items-center rounded-full transition hover:bg-surface-2 active:scale-90 ${
+          saved ? "text-accent" : "text-muted"
+        }`}
+      >
+        {icon}
+      </button>
+    );
+  }
+
   if (variant === "pill") {
     return (
       <button
@@ -73,7 +90,7 @@ export function SaveButton({
       onClick={() => toggleSaved(eventId)}
       aria-pressed={saved}
       aria-label={label}
-      className={`grid size-9 place-items-center rounded-full backdrop-blur-sm transition active:scale-90 ${
+      className={`grid size-10 place-items-center rounded-full backdrop-blur-md transition active:scale-90 ${
         saved ? "bg-white text-accent" : "bg-black/35 text-white hover:bg-black/50"
       }`}
     >

@@ -71,11 +71,18 @@ export function SiteNav() {
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${
-                    active ? "text-fg" : "text-muted"
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 text-xs ${
+                    active ? "font-semibold text-fg" : "font-medium text-muted"
                   }`}
                 >
-                  <Icon className="size-6" strokeWidth={active ? 2.5 : 2} />
+                  {/* Pill behind the active icon makes "where am I" obvious at a glance */}
+                  <span
+                    className={`grid h-8 w-14 place-items-center rounded-full transition ${
+                      active ? "bg-surface-2" : ""
+                    }`}
+                  >
+                    <Icon className="size-[22px]" strokeWidth={active ? 2.4 : 2} />
+                  </span>
                   {label}
                 </Link>
               </li>
